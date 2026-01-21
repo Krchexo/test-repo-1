@@ -23,4 +23,4 @@ jobs:
       # 4. Run app.py to see if it crashes
       # If this crashes, the step fails, and GitHub reports "Failure"
       - name: Run Main File
-        run: timeout 10s python app2.py || [ $? -eq 124 ]
+        run: timeout 10s python app.py || [ $? -eq 124 ]
