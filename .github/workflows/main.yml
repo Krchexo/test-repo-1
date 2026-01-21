@@ -16,7 +16,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. Run app.py to see if it crashes
+      # 3. Install Dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 4. Run app.py to see if it crashes
       # If this crashes, the step fails, and GitHub reports "Failure"
       - name: Run Main File
         run: python app.py
