@@ -1,4 +1,4 @@
-name: Run app.py
+name: Run notapp.py
 on:
   pull_request:
 
