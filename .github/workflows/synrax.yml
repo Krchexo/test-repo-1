@@ -26,47 +26,48 @@ jobs:
     - name: Build and Install Dependencies
       run: |
         cd .
-        echo "Running Build Command: pip ins requirements.txt"
-        pip ins requirements.txt
+        echo "Running Build Command: pip install -r requirements.txt"
+        pip install -r requirements.txt
 
     # 4. Smoke test
-    - name: Start App
+    - name: Start Smoke Test
       run: |
         cd .
         
-        # A. Start the app in the background
-        # We redirect stdout/stderr to a log file so we can print it later if needed
-        echo "Starting server..."
-        python app2.py > synrax_app.log 2>&1 &
-        
-        # B. Capture the Process ID (PID) so we can kill it later
+        # 1. Start App
+        echo "Starting server with: python app.py"
+        python app.py > synrax_app.log 2>&1 &
         APP_PID=$!
-        echo "App started with PID $APP_PID"
 
-        # C. The Retry Loop (Wait up to 30 seconds)
-        # We try to curl localhost:2000 every 2 seconds
+        # 2. Wait Loop
         MAX_RETRIES=15
         count=0
         
-        echo "Waiting for service to listen on port 2000..."
-        
         while [ $count -lt $MAX_RETRIES ]; do
-          if curl --silent --fail http://127.0.0.1:2000; then
-            echo "✅ SUCCESS: Server responded on port 2000"
-            kill $APP_PID
+          # Crash Test
+          if ! kill -0 $APP_PID 2>/dev/null; then
+            echo "CRITICAL: App process crashed!"
+            echo "--- Crash Logs ---"
+            tail -n 50 synrax_app.log
+            exit 1
+          fi
+          
+          # Port Check
+          if curl --silent --fail http://127.0.0.1:5000; then
+            echo "SUCCESS: Server responded on port 5000"
+            kill $APP_PID 2>/dev/null || true
             exit 0
           fi
           
-          echo "Port 2000 not ready yet... retrying in 2s"
+          echo "Port 5000 not ready... retrying ($((count+1))/$MAX_RETRIES)"
           sleep 2
           count=$((count+1))
         done
 
-        # D. Failure Handling
-        echo "❌ FAILURE: Server did not respond within 30 seconds"
+        # 3. Timeout Handler
+        echo "TIMEOUT: Server running but not responding after 30s"
         echo "--- Application Logs ---"
         cat synrax_app.log
         
-        # Clean up and fail the job
         kill $APP_PID
         exit 1
