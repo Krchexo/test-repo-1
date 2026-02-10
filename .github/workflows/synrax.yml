@@ -26,8 +26,8 @@ jobs:
     - name: Build and Install Dependencies
       run: |
         cd .
-        echo "Running Build Command: pip install -r requirements.txt"
-        pip install -r requirements.txt
+        echo "Running Build Command: pip ins requirements.txt"
+        pip ins requirements.txt
 
     # 4. Smoke test
     - name: Start App
@@ -44,20 +44,20 @@ jobs:
         echo "App started with PID $APP_PID"
 
         # C. The Retry Loop (Wait up to 30 seconds)
-        # We try to curl localhost:5000 every 2 seconds
+        # We try to curl localhost:2000 every 2 seconds
         MAX_RETRIES=15
         count=0
         
-        echo "Waiting for service to listen on port 5000..."
+        echo "Waiting for service to listen on port 2000..."
         
         while [ $count -lt $MAX_RETRIES ]; do
-          if curl --silent --fail http://127.0.0.1:5000; then
-            echo "✅ SUCCESS: Server responded on port 5000"
+          if curl --silent --fail http://127.0.0.1:2000; then
+            echo "✅ SUCCESS: Server responded on port 2000"
             kill $APP_PID
             exit 0
           fi
           
-          echo "Port 5000 not ready yet... retrying in 2s"
+          echo "Port 2000 not ready yet... retrying in 2s"
           sleep 2
           count=$((count+1))
         done
